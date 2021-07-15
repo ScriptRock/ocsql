@@ -40,10 +40,13 @@ func RecordStats(db *sql.DB, interval time.Duration) (fnStop func()) {
 					avgWaitPerConnection = float64(lastWindowWaitDuration.Milliseconds()) / float64(lastWindowWaitCount)
 				}
 
+				percentActive := 100 * float64(dbStats.InUse) / float64(dbStats.MaxOpenConnections)
+
 				stats.Record(ctx,
 					MeasureOpenConnections.M(int64(dbStats.OpenConnections)),
 					MeasureIdleConnections.M(int64(dbStats.Idle)),
 					MeasureActiveConnections.M(int64(dbStats.InUse)),
+					MeasurePercentActiveConnections.M(int64(percentActive)),
 					MeasureWaitCount.M(dbStats.WaitCount),
 					MeasureWaitDuration.M(float64(dbStats.WaitDuration.Nanoseconds())/1e6),
 					MeasureAvgWaitPerConnection.M(avgWaitPerConnection),

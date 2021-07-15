@@ -26,15 +26,16 @@ var (
 
 // The following measures are supported for use in custom views.
 var (
-	MeasureLatencyMs            = stats.Float64("go.sql/latency", "The latency of calls in milliseconds", stats.UnitMilliseconds)
-	MeasureOpenConnections      = stats.Int64("go.sql/connections/open", "Count of open connections in the pool", stats.UnitDimensionless)
-	MeasureIdleConnections      = stats.Int64("go.sql/connections/idle", "Count of idle connections in the pool", stats.UnitDimensionless)
-	MeasureActiveConnections    = stats.Int64("go.sql/connections/active", "Count of active connections in the pool", stats.UnitDimensionless)
-	MeasureWaitCount            = stats.Int64("go.sql/connections/wait_count", "The total number of connections waited for", stats.UnitDimensionless)
-	MeasureWaitDuration         = stats.Float64("go.sql/connections/wait_duration", "The total time blocked waiting for a new connection", stats.UnitMilliseconds)
-	MeasureAvgWaitPerConnection = stats.Float64("go.sql/connections/avg_wait_per_connection", "The average time blocked waiting per connection during the last sampling window", stats.UnitMilliseconds)
-	MeasureIdleClosed           = stats.Int64("go.sql/connections/idle_closed", "The total number of connections closed due to SetMaxIdleConns", stats.UnitDimensionless)
-	MeasureLifetimeClosed       = stats.Int64("go.sql/connections/lifetime_closed", "The total number of connections closed due to SetConnMaxLifetime", stats.UnitDimensionless)
+	MeasureLatencyMs                = stats.Float64("go.sql/latency", "The latency of calls in milliseconds", stats.UnitMilliseconds)
+	MeasureOpenConnections          = stats.Int64("go.sql/connections/open", "Count of open connections in the pool", stats.UnitDimensionless)
+	MeasureIdleConnections          = stats.Int64("go.sql/connections/idle", "Count of idle connections in the pool", stats.UnitDimensionless)
+	MeasureActiveConnections        = stats.Int64("go.sql/connections/active", "Count of active connections in the pool", stats.UnitDimensionless)
+	MeasurePercentActiveConnections = stats.Int64("go.sql/connections/percent_active", "Percent active of max open connections in the pool", stats.UnitDimensionless)
+	MeasureWaitCount                = stats.Int64("go.sql/connections/wait_count", "The total number of connections waited for", stats.UnitDimensionless)
+	MeasureWaitDuration             = stats.Float64("go.sql/connections/wait_duration", "The total time blocked waiting for a new connection", stats.UnitMilliseconds)
+	MeasureAvgWaitPerConnection     = stats.Float64("go.sql/connections/avg_wait_per_connection", "The average time blocked waiting per connection during the last sampling window", stats.UnitMilliseconds)
+	MeasureIdleClosed               = stats.Int64("go.sql/connections/idle_closed", "The total number of connections closed due to SetMaxIdleConns", stats.UnitDimensionless)
+	MeasureLifetimeClosed           = stats.Int64("go.sql/connections/lifetime_closed", "The total number of connections closed due to SetConnMaxLifetime", stats.UnitDimensionless)
 )
 
 // Default distributions used by views in this package
@@ -117,6 +118,14 @@ var (
 		TagKeys:     []tag.Key{GoSQLInstance},
 	}
 
+	SQLClientPercentActiveConnectionsView = &view.View{
+		Name:        "go.sql/db/connections/percent_active",
+		Description: "The percentage active out of max connections",
+		Measure:     MeasurePercentActiveConnections,
+		Aggregation: view.LastValue(),
+		TagKeys:     []tag.Key{GoSQLInstance},
+	}
+
 	SQLClientWaitCountView = &view.View{
 		Name:        "go.sql/db/connections/wait_count",
 		Description: "The total number of connections waited for",
@@ -159,7 +168,7 @@ var (
 
 	DefaultViews = []*view.View{
 		SQLClientLatencyView, SQLClientCallsView, SQLClientOpenConnectionsView,
-		SQLClientIdleConnectionsView, SQLClientActiveConnectionsView,
+		SQLClientIdleConnectionsView, SQLClientActiveConnectionsView, SQLClientPercentActiveConnectionsView,
 		SQLClientWaitCountView, SQLClientWaitDurationView, SQLClientAvgWaitPerConnectionView,
 		SQLClientIdleClosedView, SQLClientLifetimeClosedView,
 	}
