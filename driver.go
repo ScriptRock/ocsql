@@ -33,6 +33,7 @@ var (
 	// Compile time assertions
 	_ driver.Driver                         = &ocDriver{}
 	_ conn                                  = &ocConn{}
+	_ driver.NamedValueChecker              = &ocConn{}
 	_ driver.Result                         = &ocResult{}
 	_ driver.Stmt                           = &ocStmt{}
 	_ driver.StmtExecContext                = &ocStmt{}
@@ -51,8 +52,18 @@ var (
 // It is possible to register multiple wrappers for the same database driver if
 // needing different TraceOptions for different connections.
 func Register(driverName string, options ...TraceOption) (string, error) {
+	return RegisterWithSource(driverName, "", options...)
+}
+
+// RegisterWithSource initializes and registers our ocsql wrapped database driver
+// identified by its driverName, using provided TraceOptions.
+// source is useful if some drivers do not accept the empty string when opening the DB.
+// On success it returns the generated driverName to use when calling sql.Open.
+// It is possible to register multiple wrappers for the same database driver if
+// needing different TraceOptions for different connections.
+func RegisterWithSource(driverName string, source string, options ...TraceOption) (string, error) {
 	// retrieve the driver implementation we need to wrap with instrumentation
-	db, err := sql.Open(driverName, "")
+	db, err := sql.Open(driverName, source)
 	if err != nil {
 		return "", err
 	}
@@ -513,6 +524,15 @@ func (c *ocConn) BeginTx(ctx context.Context, opts driver.TxOptions) (tx driver.
 		return nil, err
 	}
 	return ocTx{parent: tx, ctx: ctx, options: c.options}, nil
+}
+
+func (c *ocConn) CheckNamedValue(nv *driver.NamedValue) (err error) {
+	nvc, ok := c.parent.(driver.NamedValueChecker)
+	if ok {
+		return nvc.CheckNamedValue(nv)
+	}
+	nv.Value, err = driver.DefaultParameterConverter.ConvertValue(nv.Value)
+	return err
 }
 
 // ocResult implements driver.Result
