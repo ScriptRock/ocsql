@@ -11,6 +11,8 @@ import (
 
 // The following tags are applied to stats recorded by this package.
 var (
+	// PoolName is the name of the local connection pool.
+	PoolName, _ = tag.NewKey("pool_name")
 	// GoSQLInstance is the SQL instance name.
 	GoSQLInstance, _ = tag.NewKey("go_sql_instance")
 	// GoSQLMethod is the SQL method called.
@@ -99,7 +101,7 @@ var (
 		Description: "The number of open connections",
 		Measure:     MeasureOpenConnections,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientIdleConnectionsView = &view.View{
@@ -107,7 +109,7 @@ var (
 		Description: "The number of idle connections",
 		Measure:     MeasureIdleConnections,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientActiveConnectionsView = &view.View{
@@ -115,7 +117,7 @@ var (
 		Description: "The number of active connections",
 		Measure:     MeasureActiveConnections,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientPercentActiveConnectionsView = &view.View{
@@ -123,7 +125,7 @@ var (
 		Description: "The percentage active out of max connections",
 		Measure:     MeasurePercentActiveConnections,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientWaitCountView = &view.View{
@@ -131,7 +133,7 @@ var (
 		Description: "The total number of connections waited for",
 		Measure:     MeasureWaitCount,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientWaitDurationView = &view.View{
@@ -139,7 +141,7 @@ var (
 		Description: "The total time blocked waiting for a new connection",
 		Measure:     MeasureWaitDuration,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientAvgWaitPerConnectionView = &view.View{
@@ -147,7 +149,7 @@ var (
 		Description: "The average time blocked waiting per connection during the last sampling window",
 		Measure:     MeasureAvgWaitPerConnection,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientIdleClosedView = &view.View{
@@ -155,7 +157,7 @@ var (
 		Description: "The total number of connections closed due to SetMaxIdleConns",
 		Measure:     MeasureIdleClosed,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	SQLClientLifetimeClosedView = &view.View{
@@ -163,7 +165,7 @@ var (
 		Description: "The total number of connections closed due to SetConnMaxLifetime",
 		Measure:     MeasureLifetimeClosed,
 		Aggregation: view.LastValue(),
-		TagKeys:     []tag.Key{GoSQLInstance},
+		TagKeys:     []tag.Key{PoolName, GoSQLInstance},
 	}
 
 	DefaultViews = []*view.View{
